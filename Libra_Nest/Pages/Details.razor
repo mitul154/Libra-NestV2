@@ -1,0 +1,40 @@
+﻿@page "/details/{book:int}"
+@using Newtonsoft.Json.Linq
+@using Libra_Nest.Data
+@inject StateContainer StateContainer
+<div class="details">
+    <div class="book-details">
+        <h1>@data["title"]</h1>
+        <h2>Categories</h2>
+        <p>@foreach (var cat in data["categories"])
+           {
+               <span>@cat</span>
+           }
+        </p>
+        <h2>Author</h2>
+        <div>@data["authors"][0]</div>
+        <h2>Summary</h2>
+        <p>@data["summary"]</p>
+        <button @onclick="AddToLibrary" type="button" class="btn btn-success">Add Book to Library</button>
+    </div>
+    <img class="bookCover" src="@data["published_works"][0]["cover_art_url"]" alt="Image could not be found"/>
+</div>
+
+@code {
+    [Parameter]
+    public dynamic book{ get; set; }
+
+    public JObject data{ get; set; }
+    protected override void OnInitialized()
+    {
+        data = (JObject) StateContainer.ObjectTunnel[book];
+    }
+
+    void AddToLibrary()
+    {
+        Books book1 = new Books();
+        book1.title = data["title"].ToString();
+        book1.author = data["authors"][0].ToString();
+        DataBaseConnection.AddBook(book1);
+    }
+}

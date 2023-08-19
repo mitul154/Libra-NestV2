@@ -1,0 +1,95 @@
+﻿@page "/order"
+@using Libra_Nest.Data
+@using Newtonsoft.Json.Linq
+@inject NavigationManager nav
+@inject StateContainer StateContainer
+
+<div class="flex searchCat">
+    <h1>Order</h1>
+    <div class="input-group mb-3">
+        <input @bind="title" type="text" class="form-control" placeholder="Search Order" aria-label="Recipient's username" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+            <button @onclick="getBooks" class="btn btn-outline-secondary" type="button">Search</button>
+        </div>
+    </div>
+</div>
+
+@if (spinner)
+{
+    <div class="sk-chase">
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+    </div>
+}
+<div class="grid catGrid">
+    @if (display)
+    {
+        @if (books["results"].HasValues == false)
+        {
+            <div class="alert alert-secondary" role="alert">
+                No results found...
+            </div>
+        }
+        @try
+        {
+            @foreach (var book in books["results"])
+            {
+                <div class="cat-item" @onclick="() => bookDetails((JObject)book)">
+                    <div><img src="@book["published_works"][0]["cover_art_url"]"/></div>
+                    <div>@book["title"]</div>
+                </div>
+            }
+        }
+        catch (Exception e)
+        {
+            <div class="alert alert-secondary" role="alert">
+                No results found...
+            </div>
+
+        }
+    }
+</div>
+
+@code {
+    static string title;
+    Books book1;
+    static bool display;
+    static dynamic books;
+    bool spinner;
+    bool couldNotFind;
+    protected override void OnInitialized()
+    {
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+
+    async void getBooks()
+    {
+        display = false;
+        spinner = true;
+        book1 = new Books(title);
+        await book1.getBook();
+        couldNotFind = book1.couldNotFindResults;
+        books = book1.book;
+        spinner = book1.spinner;
+        display = true;
+        StateHasChanged();
+    }
+
+
+
+
+    void bookDetails(JObject book)
+    {
+        StateContainer.ObjectTunnel.Clear();
+        StateContainer.ObjectTunnel.Add(book.GetHashCode(), book);
+        nav.NavigateTo($"/details/{book.GetHashCode()}");
+    }
+}

@@ -1,0 +1,35 @@
+﻿@page "/borrow"
+
+
+
+<div class="container mt-4">
+    
+    <form method="post">
+        <div class="form-group">
+            <label for="FirstName">First Name</label>
+            <input type="text" class="form-control" id="FirstName" name="FirstName" asp-for="Staff.FirstName" />
+        </div>
+        
+        <div class="form-group">
+            <label for="LastName">Last Name</label>
+            <input type="text" class="form-control" id="LastName" name="LastName" asp-for="Staff.LastName" />
+        </div>
+        
+        <div class="form-group">
+            <label for="BirthDate">Birth Date</label>
+            <input type="date" class="form-control" id="BirthDate" name="BirthDate" asp-for="Staff.BirthDate" />
+        </div>
+        
+        <div class="form-group">
+            <label for="Department">Department</label>
+            <input type="text" class="form-control" id="Department" name="Department" asp-for="Staff.Department" />
+        </div>
+        
+        <div class="form-group">
+            <label for="Salary">Salary</label>
+            <input type="number" class="form-control" id="Salary" name="Salary" asp-for="Staff.Salary" step="0.01" />
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Add Staff</button>
+    </form>
+</div>

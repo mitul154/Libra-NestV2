@@ -1,0 +1,79 @@
+﻿@page "/catalogue"
+@inject StateContainer StateContainer
+@inject NavigationManager nav
+@using Libra_Nest.Data
+@using Newtonsoft.Json.Linq
+
+<h1>Catalogue</h1>
+<div class="grid catGrid">
+    @try
+    {
+        @foreach (var book in bookData)
+        {
+            <div class="cat-item" @onclick='() => bookDetails((JObject)(book["results"][0]))'>
+                <img src="@book["results"][0]["published_works"][0]["cover_art_url"]"/>
+                <div>@book["results"][0]["title"]</div>
+            </div>
+
+        }
+    }        
+    catch (Exception e)
+    {
+        <div class="alert alert-secondary" role="alert">
+            No results found...
+        </div>
+
+    }
+
+    
+</div>
+
+
+@code {
+    // static string title;
+    Books book1;
+    static bool display = false;
+    static dynamic books;
+    bool spinner;
+    bool couldNotFind;
+    List<Books> bookList;
+    List<JObject> bookData;
+
+    protected override void OnInitialized()
+    {
+        bookData = new List<JObject>();
+        getBooks();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    void getBooks()
+    {
+        bookList = DataBaseConnection.LoadBooks();
+        foreach (var book in bookList)
+        {
+            getBook(book.title, book.author);
+        }
+    }
+    async void getBook(string title, string author)
+    {
+        display = false;
+        spinner = true;
+        Books book = new Books(title, author);
+        await book.getBook();
+        couldNotFind = book.couldNotFindResults;
+        bookData.Add(book.book);
+        spinner = book.spinner;
+        display = true;
+        StateHasChanged();
+    }
+    void bookDetails(JObject book)
+    {
+        StateContainer.ObjectTunnel.Clear();
+        StateContainer.ObjectTunnel.Add(book.GetHashCode(), book);
+        nav.NavigateTo($"/details/{book.GetHashCode()}");
+    }
+
+}
