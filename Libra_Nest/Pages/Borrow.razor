@@ -1,35 +1,72 @@
-﻿@page "/borrow"
+﻿@page "/borrow/{book:int}"
+@using Newtonsoft.Json.Linq
+@using Libra_Nest.Data
+@inject StateContainer StateContainer
+<div class="details">
+    <div class="book-details">
+        <h1>@data["title"]</h1>
+        <h2>Categories</h2>
+        <p>@foreach (var cat in data["categories"])
+           {
+               <span>@cat</span>
+           }
+        </p>
+        <h2>Author</h2>
+        <div>@data["authors"][0]</div>
+        <h2>Summary</h2>
+        <p>@data["summary"]</p>
+        <span >
+            <button @onclick="Add" class="btn btn-primary" type="button">Purchase</button>
+            <button type="button" class="btn btn-primary">
+                Copies Available <span class="badge text-bg-secondary">@copy</span>
+            </button></span>
+            <button @onclick="Sub" class="btn btn-primary" type="button">Borrow</button>
 
-
-
-<div class="container mt-4">
-    
-    <form method="post">
-        <div class="form-group">
-            <label for="FirstName">First Name</label>
-            <input type="text" class="form-control" id="FirstName" name="FirstName" asp-for="Staff.FirstName" />
         </div>
-        
-        <div class="form-group">
-            <label for="LastName">Last Name</label>
-            <input type="text" class="form-control" id="LastName" name="LastName" asp-for="Staff.LastName" />
-        </div>
-        
-        <div class="form-group">
-            <label for="BirthDate">Birth Date</label>
-            <input type="date" class="form-control" id="BirthDate" name="BirthDate" asp-for="Staff.BirthDate" />
-        </div>
-        
-        <div class="form-group">
-            <label for="Department">Department</label>
-            <input type="text" class="form-control" id="Department" name="Department" asp-for="Staff.Department" />
-        </div>
-        
-        <div class="form-group">
-            <label for="Salary">Salary</label>
-            <input type="number" class="form-control" id="Salary" name="Salary" asp-for="Staff.Salary" step="0.01" />
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Add Staff</button>
-    </form>
+    <img class="bookCover" src="@data["published_works"][0]["cover_art_url"]" alt="Image could not be found"/>
 </div>
+
+@code {
+    [Parameter]
+    public dynamic book{ get; set; }
+
+    public JObject data{ get; set; }
+    public Books bookTemp;
+    public List<Books> copies;
+    public int copy;
+    protected override void OnInitialized()
+    {
+        data = (JObject) StateContainer.ObjectTunnel[book];
+        // bookTemp = (Books)StateContainer.ObjectTunnel[0];
+        copies = DataBaseConnection.LoadBooks(@$"select * from books where title='{data["title"]}'");
+        copy = copies.ElementAt(0).copies;
+    }
+
+    void Add()
+    {
+        copy += 1;
+        Books tempBook = new Books();
+        tempBook.title = data["title"].ToString();
+        tempBook.copies = copy;
+        DataBaseConnection.Update(tempBook);
+    }
+    void Sub()
+    {
+        if (copy != 0)
+        {
+            copy -= 1;
+            Books tempBook = new Books();
+            tempBook.title = data["title"].ToString();
+            tempBook.copies = copy;
+            DataBaseConnection.Update(tempBook);
+        }
+    }
+
+    void AddToLibrary()
+    {
+        Books book1 = new Books();
+        book1.title = data["title"].ToString();
+        book1.author = data["authors"][0].ToString();
+        DataBaseConnection.AddBook(book1);
+    }
+}

@@ -107,7 +107,9 @@ h1:focus {
     width: 100%;
     z-index: 1000;
 }
-
+button {
+    /* margin-bottom: 20px; */
+}
 #blazor-error-ui .dismiss {
     cursor: pointer;
     position: absolute;

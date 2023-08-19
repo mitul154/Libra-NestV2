@@ -5,6 +5,17 @@
 @using Newtonsoft.Json.Linq
 
 <h1>Catalogue</h1>
+@if (spinner)
+{
+    <div class="sk-chase">
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+    </div>
+}
 <div class="grid catGrid">
     @try
     {
@@ -73,7 +84,8 @@
     {
         StateContainer.ObjectTunnel.Clear();
         StateContainer.ObjectTunnel.Add(book.GetHashCode(), book);
-        nav.NavigateTo($"/details/{book.GetHashCode()}");
+        // StateContainer.ObjectTunnel.Add(0, copiesBooks);
+        nav.NavigateTo($"/borrow/{book.GetHashCode()}");
     }
 
 }
